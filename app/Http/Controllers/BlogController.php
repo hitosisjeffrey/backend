@@ -11,10 +11,15 @@ use Carbon\Carbon;
 
 class BlogController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $blogs = Blog::with('user:id,name')->get()->map(function ($blog) {
+            $keyword = $request->query('keyword');
+            $blogs = Blog::with('user:id,name')
+            ->when(!empty($keyword), function ($query) use ($keyword) {
+                $query->where('title', 'like', '%' . $keyword . '%');
+            })
+            ->get()->map(function ($blog) {
                 $blog->author = $blog->user ? $blog->user->name : '';
                 unset($blog->user);
                 return $blog;
