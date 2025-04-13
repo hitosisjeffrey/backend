@@ -27,7 +27,7 @@ class BlogControllerTest extends TestCase
 
         $response->assertStatus(200);
 
-        $response->assertJsonCount(3);
+        $response->assertJsonCount(2);
     }
 
     /**
@@ -45,11 +45,14 @@ class BlogControllerTest extends TestCase
         $response->assertStatus(200);
 
         $response->assertJson([
-            'id' => $blog->id,
-            'title' => $blog->title,
-            'content' => $blog->content,
-            'status' => $blog->status,
-            'created_by' => $blog->created_by,
+            'status' => true,
+            'data' => [
+                'id' => $blog->id,
+                'title' => $blog->title,
+                'content' => $blog->content,
+                'status' => $blog->status,
+                'created_by' => $blog->created_by,
+            ],
         ]);
     }
 
@@ -134,9 +137,9 @@ class BlogControllerTest extends TestCase
         $response = $this->actingAs($user, 'api') 
         ->deleteJson("/api/blogs/{$blog->id}");
 
-        $response->assertStatus(204);
+        $response->assertStatus(200);
 
-        $this->assertDatabaseMissing('blogs', [
+        $this->assertSoftDeleted('blogs', [
             'id' => $blog->id,
         ]);
     }
